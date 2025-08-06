@@ -1,13 +1,13 @@
 {
   "priority_stat": ["spd", "sta", "wit", "pwr", "guts"],
-  "minimum_mood": "NORMAL",
-  "maximum_failure": 10,
-  "prioritize_g1_race": false,
+  "minimum_mood": "GOOD",
+  "maximum_failure": 15,
+  "prioritize_g1_race": true,
   "stat_caps": {
-  "spd": 1100,
+  "spd": 1120,
   "sta": 600,
   "pwr": 600,
-  "guts": 600,
-  "wit": 1100
+  "guts": 200,
+  "wit": 300
   }
 }
