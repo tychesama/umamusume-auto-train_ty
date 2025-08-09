@@ -4,10 +4,10 @@
   "maximum_failure": 15,
   "prioritize_g1_race": true,
   "stat_caps": {
-  "spd": 1120,
+  "spd": 1075,
   "sta": 600,
   "pwr": 600,
   "guts": 200,
-  "wit": 300
+  "wit": 450
   }
 }

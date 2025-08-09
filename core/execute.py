@@ -4,6 +4,8 @@ import json
 import random
 import math
 
+import os
+from pynput.keyboard import Key, Listener
 
 pyautogui.useImageNotFoundException(False)
 
@@ -20,47 +22,40 @@ MAX_FAILURE = config["maximum_failure"]
 MINIMUM_MOOD = config["minimum_mood"]
 PRIORITIZE_G1_RACE = config["prioritize_g1_race"]
 
-def curved_move(start_x, start_y, end_x, end_y, duration=0.4, steps=20):
-  """Move in a curved, human-like arc from (start_x, start_y) to (end_x, end_y)."""
-  for i in range(steps + 1):
-    t = i / steps
-    # Sine-based easing for a slightly curved motion
-    intermediate_x = start_x + (end_x - start_x) * t + math.sin(t * math.pi) * random.randint(-10, 10)
-    intermediate_y = start_y + (end_y - start_y) * t + math.cos(t * math.pi) * random.randint(-10, 10)
-    pyautogui.moveTo(intermediate_x, intermediate_y, duration / steps)
+# Globals for pause/exit
+paused = False
+exit_triggered = False
 
+def on_press(key):
+  global paused, exit_triggered
+  try:
+    if hasattr(key, 'char') and key.char == '=':
+      print("[EMERGENCY] '=' key pressed. Exiting immediately.")
+      exit_triggered = True
+      os._exit(1)
+  except AttributeError:
+    pass
 
-def random_mouse_wiggle(wiggles=5, max_distance=100, max_delay=2.5):
-  """
-  Simulate random mouse movements around the current cursor position.
+def on_release(key):
+  global paused
+  if key == Key.alt_l:
+    paused = not paused
+    if paused:
+      print("[INFO] Paused. Press Left Alt again to resume.")
+    else:
+      print("[INFO] Resumed.")
 
-  Parameters:
-  - wiggles: number of movements
-  - max_distance: maximum distance (in pixels) to move in any direction
-  - max_delay: maximum delay between movements (seconds)
-  """
-  screen_width, screen_height = pyautogui.size()
-  start_x, start_y = pyautogui.position()
+def wait_if_paused():
+  while paused:
+    print("[INFO] Waiting... (Paused)")
+    time.sleep(3)
 
-  for _ in range(wiggles):
-    # Random offset within max_distance bounds
-    dx = random.randint(-max_distance, max_distance)
-    dy = random.randint(-max_distance, max_distance)
+def start_emergency_listener():
+  listener = Listener(on_press=on_press, on_release=on_release)
+  listener.daemon = True
+  listener.start()
 
-    # Make sure the movement stays on screen
-    new_x = max(0, min(start_x + dx, screen_width - 1))
-    new_y = max(0, min(start_y + dy, screen_height - 1))
-
-    # Use curved movement
-    curved_move(start_x, start_y, new_x, new_y, duration=random.uniform(0.3, 0.8))
-
-    # Random pause to simulate idle fidgeting
-    time.sleep(random.uniform(0.5, max_delay))
-
-    # Update current position
-    start_x, start_y = new_x, new_y
-
-def jitter_click(x, y, clicks=1, duration=None, jitter_x=55, jitter_y=15):
+def jitter_click(x, y, clicks=1, duration=None, jitter_x=45, jitter_y=15):
     if duration is None:
         duration = random.uniform(0.12, 0.2)
 
@@ -96,24 +91,29 @@ def check_training():
   }
   results = {}
 
-  need_wit = False
+  support_count = 0
+  skip_all = False
+  wit_only = False
   duration = 0.2
 
   for key, icon_path in training_types.items():
     pos = pyautogui.locateCenterOnScreen(icon_path, confidence=0.8)
     if pos:
-      if need_wit == False or key == "wit":
-        pyautogui.moveTo(pos, duration=0.2)
-        pyautogui.mouseDown()
-      else:
+      wait_if_paused()
+
+      if skip_all:
         continue
+      elif wit_only and key != "wit":
+        continue
+
+      pyautogui.moveTo(pos, duration=0.2)
+      pyautogui.mouseDown()
 
       failure_chance = check_failure()
 
-      if int(failure_chance) > MAX_FAILURE + 5:
-        print(f"Fail too high, SKIPPING")
-        # set the value of spd sta pwr guts to fail 99
-        need_wit = True
+      if int(failure_chance) > MAX_FAILURE + 3:
+        print(f"[INFO] Fail too high... SKIPPING")
+        wit_only = True
         duration = 0.5
         continue
 
@@ -125,6 +125,12 @@ def check_training():
         "failure": failure_chance
       }
       print(f"[{key.upper()}] → {support_counts}, Fail: {failure_chance}%")
+
+      support_count += total_support
+      if support_count >= 6:
+        print(f"[INFO] Found all 6 supports... skipping all further training types.")
+        skip_all = True
+
       time.sleep(0.1)
   pyautogui.mouseUp()
   return results
@@ -160,9 +166,9 @@ def do_recreation():
     jitter_click(recreation_summer_btn.x, recreation_summer_btn.y)
 
 def do_race(prioritize_g1 = False):
+  wait_if_paused()
   click(img="assets/buttons/races_btn.png", minSearch=10)
   click(img="assets/buttons/ok_btn.png", minSearch=0.7)
-
   found = race_select(prioritize_g1=prioritize_g1)
   if not found:
     print("[INFO] No race found.")
@@ -174,15 +180,16 @@ def do_race(prioritize_g1 = False):
   return True
 
 def race_day():
+  wait_if_paused()
   click(img="assets/buttons/race_day_btn.png", minSearch=10)
-  
+  wait_if_paused()
   click(img="assets/buttons/ok_btn.png", minSearch=0.7)
   time.sleep(0.5)
-
+  wait_if_paused()
   for i in range(2):
     click(img="assets/buttons/race_btn.png", minSearch=2)
     time.sleep(0.5)
-
+  wait_if_paused()
   race_prep()
   time.sleep(1)
   after_race()
@@ -241,7 +248,9 @@ def race_select(prioritize_g1 = False):
     return False
 
 def race_prep():
+  wait_if_paused()
   view_result_btn = pyautogui.locateCenterOnScreen("assets/buttons/view_results.png", confidence=0.8, minSearchTime=20)
+  wait_if_paused()
   if view_result_btn:
     jitter_click(view_result_btn.x, view_result_btn.y)
     time.sleep(0.5)
@@ -257,8 +266,10 @@ def after_race():
   click(img="assets/buttons/next2_btn.png", minSearch=5)
 
 def career_lobby():
+  start_emergency_listener()
   # Program start
   while True:
+    wait_if_paused()
     # First check, event
     if click(img="assets/icons/event_choice_1.png", minSearch=0.2, text="[INFO] Event found, automatically select top choice."):
       continue
@@ -303,6 +314,7 @@ def career_lobby():
     print(f"Turn: {turn}\n")
 
     # URA SCENARIO
+    wait_if_paused()
     if year == "Finale Season" and turn == "Race Day":
       print("[INFO] URA Finale")
       ura()
@@ -341,6 +353,7 @@ def career_lobby():
     # If Prioritize G1 Race is true, check G1 race every turn
     if PRIORITIZE_G1_RACE and year_parts[0] != "Junior" and len(year_parts) > 3 and year_parts[3] not in ["Jul", "Aug"]:
       g1_race_found = do_race(PRIORITIZE_G1_RACE)
+      wait_if_paused()
       if g1_race_found:
         continue
       else:
@@ -356,6 +369,7 @@ def career_lobby():
     # Last, do training
     time.sleep(random.uniform(0.3, 0.5))
     results_training = check_training()
+    wait_if_paused()
     
     best_training = do_something(results_training)
 
@@ -368,9 +382,14 @@ def career_lobby():
       do_rest()
     time.sleep(1)
 
-    if random.random() < 0.01:
-      print("[DEBUG] Simulating random mouse wiggle.")
-      random_mouse_wiggle(wiggles=2, max_distance=500, max_delay=2)
+if __name__ == "__main__":
+    start_emergency_listener()
 
-
+    while not exit_triggered:
+        if not paused:
+            print("[INFO] Starting career_lobby loop.")
+            career_lobby()
+        else:
+            print("[INFO] Script is paused.")
+            time.sleep(0.5)
 
