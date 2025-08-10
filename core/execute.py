@@ -11,7 +11,7 @@ pyautogui.useImageNotFoundException(False)
 
 from core.state import check_support_card, check_failure, check_turn, check_mood, check_current_year, check_criteria
 from core.logic import do_something
-from utils.constants import MOOD_LIST
+from utils.constants import MOOD_LIST, G1_DATES
 from core.recognizer import is_infirmary_active, match_template
 from utils.scenario import ura
 
@@ -127,7 +127,7 @@ def check_training():
       print(f"[{key.upper()}] → {support_counts}, Fail: {failure_chance}%")
 
       support_count += total_support
-      if support_count >= 6:
+      if key != "wit" and support_count >= 6:
         print(f"[INFO] Found all 6 supports... skipping all further training types.")
         skip_all = True
 
@@ -274,6 +274,9 @@ def career_lobby():
     if click(img="assets/icons/event_choice_1.png", minSearch=0.2, text="[INFO] Event found, automatically select top choice."):
       continue
 
+    if click(img="assets/buttons/next2_btn.png", minSearch=0.2, text="[INFO] Race Finished."):
+      continue
+
     # Second check, inspiration
     if click(img="assets/buttons/inspiration_btn.png", minSearch=0.2, text="[INFO] Inspiration found."):
       continue
@@ -351,7 +354,7 @@ def career_lobby():
 
     year_parts = year.split(" ")
     # If Prioritize G1 Race is true, check G1 race every turn
-    if PRIORITIZE_G1_RACE and year_parts[0] != "Junior" and len(year_parts) > 3 and year_parts[3] not in ["Jul", "Aug"]:
+    if PRIORITIZE_G1_RACE and year in G1_DATES:
       g1_race_found = do_race(PRIORITIZE_G1_RACE)
       wait_if_paused()
       if g1_race_found:
