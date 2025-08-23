@@ -3,9 +3,35 @@ import time
 import json
 import random
 import math
-
 import os
 from pynput.keyboard import Key, Listener
+
+# ===========================================================
+# FAST MODE SUPPORT  (only added, no existing code changed)
+# ===========================================================
+fast_mode = True   # <- set to False for normal behavior
+
+# keep originals
+ORIGINAL_SLEEP = time.sleep
+ORIGINAL_UNIFORM = random.uniform
+
+def fast_sleep(sec):
+    # globally replace sleep with 0.1 when fast_mode=True
+    if fast_mode:
+        ORIGINAL_SLEEP(0.1)
+    else:
+        ORIGINAL_SLEEP(sec)
+
+def fast_uniform(a,b):
+    # durations => always 0.1 when in fast mode
+    if fast_mode:
+        return 0.1
+    return ORIGINAL_UNIFORM(a,b)
+
+# monkey-patch
+time.sleep = fast_sleep
+random.uniform = fast_uniform
+# ===========================================================
 
 pyautogui.useImageNotFoundException(False)
 
@@ -38,7 +64,7 @@ def on_press(key):
 
 def on_release(key):
   global paused
-  if key == Key.alt_l:
+  if hasattr(key, 'char') and key.char == '0':
     paused = not paused
     if paused:
       print("[INFO] Paused. Press Left Alt again to resume.")
@@ -48,7 +74,7 @@ def on_release(key):
 def wait_if_paused():
   while paused:
     print("[INFO] Waiting... (Paused)")
-    time.sleep(3)
+    ORIGINAL_SLEEP(3)
 
 def start_emergency_listener():
   listener = Listener(on_press=on_press, on_release=on_release)
@@ -106,7 +132,7 @@ def check_training():
       elif wit_only and key != "wit":
         continue
 
-      pyautogui.moveTo(pos, duration=0.2)
+      pyautogui.moveTo(pos, duration=0.1)
       pyautogui.mouseDown()
 
       failure_chance = check_failure()
@@ -129,8 +155,8 @@ def check_training():
       support_count += total_support
       if key != "wit" and support_count >= 6:
         print(f"[INFO] Found all 6 supports... skipping all further training types.")
+        time.sleep(0.1)
         skip_all = True
-
       time.sleep(0.1)
   pyautogui.mouseUp()
   return results
@@ -168,8 +194,11 @@ def do_recreation():
 def do_race(prioritize_g1 = False):
   wait_if_paused()
   click(img="assets/buttons/races_btn.png", minSearch=10)
+  wait_if_paused()
   click(img="assets/buttons/ok_btn.png", minSearch=0.7)
+  wait_if_paused()
   found = race_select(prioritize_g1=prioritize_g1)
+  wait_if_paused()
   if not found:
     print("[INFO] No race found.")
     return False
@@ -285,6 +314,9 @@ def career_lobby():
       continue
 
     if click(img="assets/buttons/cancel_btn.png", minSearch=0.2):
+      continue
+
+    if click(img="assets/buttons/teamtrial_skip_btn.png", minSearch=0.2):
       continue
 
     # Check if current menu is in career lobby
