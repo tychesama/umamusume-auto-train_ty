@@ -107,7 +107,7 @@ def go_to_training():
   return click("assets/buttons/training_btn.png")
 
 
-def check_training():
+def check_training(): # need fix for -1%
   training_types = {
     "spd": "assets/icons/train_spd.png",
     "sta": "assets/icons/train_sta.png",
@@ -122,6 +122,8 @@ def check_training():
   wit_only = False
   duration = 0.2
 
+  pyautogui.mouseDown()
+
   for key, icon_path in training_types.items():
     pos = pyautogui.locateCenterOnScreen(icon_path, confidence=0.8)
     if pos:
@@ -133,12 +135,18 @@ def check_training():
         continue
 
       pyautogui.moveTo(pos, duration=0.1)
-      pyautogui.mouseDown()
 
       failure_chance = check_failure()
 
-      if int(failure_chance) > MAX_FAILURE + 3:
-        print(f"[INFO] Fail too high... SKIPPING")
+      # Fail fix at -1%
+      while failure_chance == -1:
+        failure_chance = check_failure()
+        if failure_chance == -1:
+          print(f"[WARN] {key.upper()} gave -1% fail, retrying...")
+          time.sleep(0.2)
+
+      if failure_chance > MAX_FAILURE + 3:
+        print(f"[INFO] Fail too high ({failure_chance}%) ... SKIPPING")
         wit_only = True
         duration = 0.5
         continue
@@ -174,10 +182,10 @@ def do_rest():
   rest_summber_btn = pyautogui.locateCenterOnScreen("assets/buttons/rest_summer_btn.png", confidence=0.8)
 
   if rest_btn:
-    pyautogui.moveTo(rest_btn, duration=0.35)
+    pyautogui.moveTo(rest_btn, duration=0.1) # manual duration
     jitter_click(rest_btn.x, rest_btn.y)
   elif rest_summber_btn:
-    pyautogui.moveTo(rest_summber_btn, duration=0.35)
+    pyautogui.moveTo(rest_summber_btn, duration=0.1) # manual duration
     jitter_click(rest_summber_btn.x, rest_summber_btn.y)
 
 def do_recreation():
@@ -239,13 +247,13 @@ def race_select(prioritize_g1 = False):
           match_aptitude = pyautogui.locateCenterOnScreen("assets/ui/match_track.png", confidence=0.8, minSearchTime=0.7, region=region)
           if match_aptitude:
             print("[INFO] G1 race found.")
-            pyautogui.moveTo(match_aptitude, duration=0.2)
+            pyautogui.moveTo(match_aptitude, duration=0.1) # manual duration
             x, y = pyautogui.position()
             jitter_click(x, y)
             for i in range(2):
               race_btn = pyautogui.locateCenterOnScreen("assets/buttons/race_btn.png", confidence=0.8, minSearchTime=2)
               if race_btn:
-                pyautogui.moveTo(race_btn, duration=0.5)
+                pyautogui.moveTo(race_btn, duration=0.1) # manual duration
                 jitter_click(race_btn.x, race_btn.y)
                 time.sleep(0.5)
             return True
@@ -260,13 +268,13 @@ def race_select(prioritize_g1 = False):
       match_aptitude = pyautogui.locateCenterOnScreen("assets/ui/match_track.png", confidence=0.8, minSearchTime=0.7)
       if match_aptitude:
         print("[INFO] Race found.")
-        pyautogui.moveTo(match_aptitude, duration=0.5)
+        pyautogui.moveTo(match_aptitude, duration=0.1) # manual duration
         jitter_click(match_aptitude.x, match_aptitude.y)
 
         for i in range(2):
           race_btn = pyautogui.locateCenterOnScreen("assets/buttons/race_btn.png", confidence=0.8, minSearchTime=2)
           if race_btn:
-            pyautogui.moveTo(race_btn, duration=0.5)
+            pyautogui.moveTo(race_btn, duration=0.1) # manual duration
             jitter_click(race_btn.x, race_btn.y)
             time.sleep(0.5)
         return True
@@ -285,14 +293,23 @@ def race_prep():
     time.sleep(0.5)
     for i in range(3):
       pyautogui.tripleClick(interval=0.2)
-      time.sleep(0.5)
+      ORIGINAL_SLEEP(0.5)
+
+def triple_click_until(img, offset_y=-300, confidence=0.8):
+  while not pyautogui.locateOnScreen(img, confidence=confidence):
+    x, y = pyautogui.position()
+    y += offset_y  # move ~300px above current cursor
+    for _ in range(3):
+      jitter_click(x, y)
+      time.sleep(0.05)
+    time.sleep(0.2)
+  click(img=img, minSearch=5)
 
 def after_race():
-  click(img="assets/buttons/next_btn.png", minSearch=5)
+  triple_click_until("assets/buttons/next_btn.png")
   time.sleep(0.3)
-  x, y = pyautogui.position()
-  jitter_click(x, y)
-  click(img="assets/buttons/next2_btn.png", minSearch=5)
+  triple_click_until("assets/buttons/next2_btn.png")
+
 
 def career_lobby():
   start_emergency_listener()
