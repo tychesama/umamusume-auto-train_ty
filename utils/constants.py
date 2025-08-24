@@ -36,7 +36,7 @@ G1_DATES = [
     # "Senior Year Late Dec",     # Tokyo Daishoten (Dirt/Medium 2000m)
 ]
 
-G1_DATES_ALL = [
+G1_DATES_B = [
     # First Year
     "First Year Early Dec",   # Asahi Hai Futurity Stakes (Turf/Mile 1600m) / Hanshin Juvenile Fillies (Turf/Mile 1600m)
     "First Year Late Dec",    # Hopeful Stakes (Turf/Medium 2000m)
@@ -67,6 +67,41 @@ G1_DATES_ALL = [
     "Senior Year Early Nov",    # JBC Classic (Dirt/Varies) / JBC Ladies’ Classic (Dirt/Mile Varies) / JBC Sprint (Dirt/Short Varies) / Queen Elizabeth II Cup (Turf/Medium 2200m)
     "Senior Year Late Nov",     # Japan Cup (Turf/Medium 2400m) / Mile Championship (Turf/Mile 1600m)
     "Senior Year Early Dec",    # Champions Cup (Dirt/Mile 1800m)
+    "Senior Year Late Dec",     # Arima Kinen (Turf/Long 2500m) / Tokyo Daishoten (Dirt/Medium 2000m)
+]
+
+
+G1_DATES_A = [
+    # First Year
+    "First Year Early Dec",   # Asahi Hai Futurity Stakes (Turf/Mile 1600m) / Hanshin Juvenile Fillies (Turf/Mile 1600m)
+    "First Year Late Dec",    # Hopeful Stakes (Turf/Medium 2000m)
+
+    # Classic Year (Second Year)
+    # "Classic Year Early Apr",   # Oka Sho (Turf/Mile 1600m) / Satsuki Sho (Turf/Medium 2000m)
+    # "Classic Year Early May",   # NHK Mile Cup (Turf/Mile 1600m)
+    "Classic Year Late May",    # Japanese Oaks (Turf/Medium 2400m) / Tokyo Yushun (Derby) (Turf/Medium 2400m)
+    # "Classic Year Early Jun",   # Yasuda Kinen (Turf/Mile 1600m)
+    # "Classic Year Late Jun",    # Takarazuka Kinen (Turf/Medium 2200m)
+    # "Classic Year Early Jul",   # Japan Dirt Derby (Dirt/Medium 2000m)
+    # "Classic Year Early Sep",   # Sprinters Stakes (Turf/Short 1200m)
+    # "Classic Year Late Oct",    # Kikuka Sho (Turf/Long 3000m) / Shuka Sho (Turf/Medium 2000m) / Tenno Sho (Autumn) (Turf/Medium 2000m)
+    # "Classic Year Early Nov",   # JBC Classic (Dirt/Varies) / JBC Ladies’ Classic (Dirt/Mile Varies) / JBC Sprint (Dirt/Short Varies) / Queen Elizabeth II Cup (Turf/Medium 2200m)
+    "Classic Year Late Nov",    # Japan Cup (Turf/Medium 2400m) / Mile Championship (Turf/Mile 1600m)
+    # "Classic Year Early Dec",   # Champions Cup (Dirt/Mile 1800m)
+    "Classic Year Late Dec",    # Arima Kinen (Turf/Long 2500m) / Tokyo Daishoten (Dirt/Medium 2000m)
+
+    # Senior Year (Third Year)
+    # "Senior Year Late Feb",     # February Stakes (Dirt/Mile 1600m)
+    # "Senior Year Late Mar",     # Osaka Hai (Turf/Medium 2000m) / Takamatsunomiya Kinen (Turf/Short 1200m)
+    # "Senior Year Late Apr",     # Tenno Sho (Spring) (Turf/Long 3200m)
+    # "Senior Year Early May",    # Victoria Mile (Turf/Mile 1600m)
+    # "Senior Year Early Jun",    # Yasuda Kinen (Turf/Mile 1600m)
+    "Senior Year Late Jun",     # Takarazuka Kinen (Turf/Medium 2200m) / Teio Sho (Dirt/Medium 2000m)
+    # "Senior Year Early Sep",    # Sprinters Stakes (Turf/Short 1200m)
+    # "Senior Year Late Oct",     # Tenno Sho (Autumn) (Turf/Medium 2000m)
+    # "Senior Year Early Nov",    # JBC Classic (Dirt/Varies) / JBC Ladies’ Classic (Dirt/Mile Varies) / JBC Sprint (Dirt/Short Varies) / Queen Elizabeth II Cup (Turf/Medium 2200m)
+    "Senior Year Late Nov",     # Japan Cup (Turf/Medium 2400m) / Mile Championship (Turf/Mile 1600m)
+    # "Senior Year Early Dec",    # Champions Cup (Dirt/Mile 1800m)
     "Senior Year Late Dec",     # Arima Kinen (Turf/Long 2500m) / Tokyo Daishoten (Dirt/Medium 2000m)
 ]
 

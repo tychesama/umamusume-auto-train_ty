@@ -30,7 +30,7 @@ def most_support_card(results):
 
   if all_others_bad and wit_data and int(wit_data["failure"]) <= MAX_FAILURE and wit_data["total_support"] >= 2:
     print("\n[INFO] All trainings are unsafe, but WIT is safe and has enough support cards.")
-    return "wit"
+    return "wit", int(wit_data["failure"])
 
   filtered_results = {
     k: v for k, v in results.items() if int(v["failure"]) <= MAX_FAILURE
@@ -58,13 +58,13 @@ def most_support_card(results):
         print(f"\n[INFO] Only 1 support and it's WIT. Skipping.")
         return None
       print(f"\n[INFO] Only 1 support but 0% failure. Prioritizing based on priority list: {best_key.upper()}")
-      return best_key
+      return best_key, best_data["failure"]
     else:
       print("\n[INFO] Low value training (only 1 support). Choosing to rest.")
       return None
 
   print(f"\nBest training: {best_key.upper()} with {best_data['total_support']} support cards and {best_data['failure']}% fail chance")
-  return best_key
+  return best_key, best_data["failure"]
 
 # Do rainbow training
 def rainbow_training(results):
@@ -89,7 +89,7 @@ def rainbow_training(results):
 
   best_key, best_data = best_rainbow
   print(f"\n[INFO] Rainbow training selected: {best_key.upper()} with {best_data['support'][best_key]} rainbow supports and {best_data['failure']}% fail chance")
-  return best_key
+  return best_key, best_data["failure"]
 
 def filter_by_stat_caps(results, current_stats):
   return {

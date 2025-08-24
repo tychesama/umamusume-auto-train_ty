@@ -120,7 +120,7 @@ def check_training(): # need fix for -1%
   support_count = 0
   skip_all = False
   wit_only = False
-  duration = 0.2
+  duration = 0.1
 
   pyautogui.mouseDown()
 
@@ -134,7 +134,7 @@ def check_training(): # need fix for -1%
       elif wit_only and key != "wit":
         continue
 
-      pyautogui.moveTo(pos, duration=0.1)
+      pyautogui.moveTo(pos, duration=duration)
 
       failure_chance = check_failure()
 
@@ -297,16 +297,21 @@ def race_prep():
 
 def triple_click_until(img, offset_y=-300, confidence=0.8):
   while not pyautogui.locateOnScreen(img, confidence=confidence):
+    wait_if_paused()
     x, y = pyautogui.position()
     y += offset_y  # move ~300px above current cursor
     for _ in range(3):
+      wait_if_paused()
       jitter_click(x, y)
       time.sleep(0.05)
     time.sleep(0.2)
+  wait_if_paused()
   click(img=img, minSearch=5)
 
 def after_race():
+  wait_if_paused()
   triple_click_until("assets/buttons/next_btn.png")
+  wait_if_paused()
   time.sleep(0.3)
   triple_click_until("assets/buttons/next2_btn.png")
 
@@ -422,12 +427,20 @@ def career_lobby():
     time.sleep(random.uniform(0.3, 0.5))
     results_training = check_training()
     wait_if_paused()
-    
+
     best_training = do_something(results_training)
 
     if best_training:
+      best_key, failure = best_training
+
+      if (year in ["Classic Year Early Jun", "Classic Year Late Jun",
+             "Senior Year Early Jun", "Senior Year Late Jun"]) and failure > 0:
+        print(f"[INFO] Resting instead of training ({year}, {failure}% fail chance)")
+        do_rest()
+        continue
+
       time.sleep(random.uniform(0.4, 0.6))
-      do_train(best_training)
+      do_train(best_key)
     else:
       click(img="assets/buttons/back_btn.png")
       time.sleep(random.uniform(0.3, 0.5))
